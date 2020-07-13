@@ -1,0 +1,146 @@
+<!doctype html>
+
+<!--注意：引入thymeleaf的名称空间-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style type="text/css">
+        #detailTbody tr:hover {
+            background: #fff;
+        }
+
+        .layui-form-label {
+            width: 110px;
+        }
+
+        .uploader-list {
+            margin-left: -15px;
+        }
+
+        .uploader-list .info {
+            position: relative;
+            margin-top: -25px;
+            background-color: black;
+            color: white;
+            filter: alpha(Opacity=80);
+            -moz-opacity: 0.5;
+            opacity: 0.5;
+            width: 100px;
+            height: 25px;
+            text-align: center;
+            display: none;
+        }
+
+        .uploader-list .handle {
+            position: relative;
+            background-color: #ff6a00;
+            color: white;
+            filter: alpha(Opacity=80);
+            -moz-opacity: 0.5;
+            width: 100px;
+            text-align: right;
+            height: 18px;
+            margin-bottom: -18px;
+            display: none;
+        }
+
+        .uploader-list .handle span {
+            margin-right: 5px;
+        }
+
+        .uploader-list .handle span:hover {
+            cursor: pointer;
+        }
+
+        .uploader-list .file-iteme {
+            margin: 12px 0 0 15px;
+            padding: 1px;
+            float: left;
+        }
+    </style>
+    <script src="/layui/layui.js"></script>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery-3.5.1.js"></script>
+</head>
+<body>
+<div class="layui-upload">
+
+    <button type="button" class="layui-btn layui-btn-warm" id="test2">单据上传（可上传多张）</button>
+    <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;width: 88%">
+        预览图：
+
+        <div class="layui-upload-list uploader-list" style="overflow: auto;" id="uploader-list">
+            <div id="" class="file-iteme" th:each="img :${data}">
+                <div class="handle"><i class="layui-icon" style="color: white;margin-right: 40%">&#xe640;</i>
+                </div>
+                <img th:src="${img}" alt="单据" width="100" height="100" onclick="showBig(this)">
+            </div>
+        </div>
+    </blockquote>
+
+    <script>
+        layui.use(['form', 'layer', 'laydate', 'upload'], function () {
+            $ = layui.jquery;
+            var form = layui.form,
+                layer = layui.layer,
+                laydate = layui.laydate,
+                upload = layui.upload;
+            //多图片上传
+            upload.render({
+                elem: '#test2'
+                , url: '/test/uploadImg'
+                , multiple: true
+                , before: function (obj) {
+                    layer.msg('图片上传中...', {
+                        icon: 16,
+                        shade: 0.01,
+                        time: 0
+                    })
+                }
+                , done: function (res) {
+                    layer.close(layer.msg());//关闭上传提示窗口
+                    //上传完毕
+                    $('#uploader-list').append(
+                        '<div id="" class="file-iteme">' +
+                        '<div class="handle"> <i class="layui-icon" style="color: white ;margin-right: 40%">&#xe640;</i></div>' +
+                        '<img style="color: white;width: 100px;height: 100px" onclick="showBig(this)" src=' + res.url + ' >' +
+                        '</div>'
+                    );
+                }
+            });
+        });
+
+        $(document).on("mouseenter mouseleave", ".file-iteme", function (event) {
+            if (event.type === "mouseenter") {
+                //鼠标悬浮
+                $(this).children(".info").fadeIn("fast");
+                $(this).children(".handle").fadeIn("fast");
+            } else if (event.type === "mouseleave") {
+                //鼠标离开
+                $(this).children(".info").hide();
+                $(this).children(".handle").hide();
+            }
+        });
+        $(document).on("click", ".file-iteme .handle", function(event){
+            $(this).parent().remove();
+        });
+        function showBig(obj) {
+            var url = (obj.src);
+            var index = layer.open({
+                type: 2,
+                content: url,
+                area: ['100%', '100%'],
+                title: "单据",
+                maxmin: true,
+                closeBtn: 1
+            });
+            layer.full(index);
+        }
+    </script>
+</div>
+</body>
+</html>
